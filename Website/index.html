@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Sketch Pad — Drawing App</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Login -->
+  <div id="loginScreen" class="login-page">
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="login-emoji" aria-hidden="true">🎨</span>
+        <h1>Sketch Pad</h1>
+        <p>Sign in to save and load your drawings</p>
+      </div>
+
+      <div class="login-tabs" role="tablist">
+        <button type="button" class="login-tab active" data-mode="login" role="tab" aria-selected="true">Sign in</button>
+        <button type="button" class="login-tab" data-mode="register" role="tab" aria-selected="false">Create account</button>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <label class="login-field">
+          <span>Username</span>
+          <input type="text" id="loginUsername" autocomplete="username" placeholder="Your name" maxlength="24" required>
+        </label>
+        <label class="login-field">
+          <span>Password</span>
+          <input type="password" id="loginPassword" autocomplete="current-password" placeholder="At least 4 characters" minlength="4" required>
+        </label>
+        <label class="login-remember" id="rememberRow">
+          <input type="checkbox" id="loginRemember" checked>
+          Remember me on this device
+        </label>
+        <p id="loginError" class="login-error" role="alert" hidden></p>
+        <button type="submit" class="login-submit" id="loginSubmit">Sign in</button>
+      </form>
+
+      <p class="login-note">
+        Uses the same family accounts as My Awesome Day. Drawings stay on this device only.
+      </p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="appRoot" class="app" hidden>
+    <header class="header">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">🎨</span>
+        <div class="brand-text">
+          <h1>Sketch Pad</h1>
+          <span class="user-badge" id="userBadge"></span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn btn-ghost btn-icon" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <span aria-hidden="true">🌙</span>
+        </button>
+        <button type="button" class="btn btn-ghost" id="undoBtn" title="Undo" disabled>
+          <span aria-hidden="true">↩</span> Undo
+        </button>
+        <button type="button" class="btn btn-ghost" id="redoBtn" title="Redo" disabled>
+          <span aria-hidden="true">↪</span> Redo
+        </button>
+        <button type="button" class="btn btn-ghost" id="saveGalleryBtn" title="Save to your gallery">
+          <span aria-hidden="true">📁</span> Save
+        </button>
+        <button type="button" class="btn btn-primary" id="exportBtn" title="Download as PNG">
+          <span aria-hidden="true">💾</span> Export
+        </button>
+        <button type="button" class="btn btn-danger" id="clearBtn" title="Clear canvas">
+          <span aria-hidden="true">🗑</span> Clear
+        </button>
+        <button type="button" class="btn btn-ghost" id="logoutBtn" title="Sign out">
+          <span aria-hidden="true">⎋</span> Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="toolbar" aria-label="Drawing tools">
+        <section class="tool-group gallery-group">
+          <div class="gallery-header">
+            <h2 class="tool-label">My drawings</h2>
+            <span class="gallery-count" id="galleryCount">0 / 12</span>
+          </div>
+          <p class="gallery-hint">Auto-saves your current canvas while you work.</p>
+          <ul class="gallery-list" id="galleryList" aria-label="Saved drawings"></ul>
+          <p class="gallery-empty" id="galleryEmpty">No saved drawings yet. Tap Save in the header.</p>
+        </section>
+
+        <section class="tool-group">
+          <h2 class="tool-label">Brushes</h2>
+          <div class="tool-buttons tool-grid" role="group" aria-label="Select brush">
+            <button type="button" class="tool-btn active" data-tool="round" title="Smooth round brush">
+              <span class="tool-icon" aria-hidden="true">✏️</span>
+              <span class="tool-name">Round</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="pen" title="Crisp pen lines">
+              <span class="tool-icon" aria-hidden="true">🖊️</span>
+              <span class="tool-name">Pen</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="marker" title="Semi-transparent marker">
+              <span class="tool-icon" aria-hidden="true">🖍️</span>
+              <span class="tool-name">Marker</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="highlighter" title="Wide highlighter">
+              <span class="tool-icon" aria-hidden="true">💛</span>
+              <span class="tool-name">Highlight</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="pencil" title="Sketchy pencil">
+              <span class="tool-icon" aria-hidden="true">✎</span>
+              <span class="tool-name">Pencil</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="calligraphy" title="Pressure-style nib">
+              <span class="tool-icon" aria-hidden="true">🪶</span>
+              <span class="tool-name">Calligraphy</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="spray" title="Spray paint">
+              <span class="tool-icon" aria-hidden="true">💨</span>
+              <span class="tool-name">Spray</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="neon" title="Glowing neon lines">
+              <span class="tool-icon" aria-hidden="true">✨</span>
+              <span class="tool-name">Neon</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="smudge" title="Blend and smear colors">
+              <span class="tool-icon" aria-hidden="true">👆</span>
+              <span class="tool-name">Smudge</span>
+            </button>
+            <button type="button" class="tool-btn" data-tool="eraser" title="Eraser">
+              <span class="tool-icon" aria-hidden="true">🧽</span>
+              <span class="tool-name">Eraser</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="tool-group">
+          <h2 class="tool-label">Color</h2>
+          <div class="color-picker-wrap">
+            <input type="color" id="colorPicker" value="#1e293b" aria-label="Pick color">
+            <label for="colorPicker" class="color-preview" id="colorPreview"></label>
+          </div>
+          <div class="color-swatches" id="colorSwatches" role="list" aria-label="Color presets"></div>
+        </section>
+
+        <section class="tool-group">
+          <h2 class="tool-label">Size</h2>
+          <div class="size-control">
+            <input type="range" id="sizeSlider" min="1" max="50" value="8" aria-label="Brush size">
+            <output id="sizeValue" for="sizeSlider">8</output>
+          </div>
+          <div class="size-preview" id="sizePreview" aria-hidden="true"></div>
+        </section>
+
+        <section class="tool-group">
+          <h2 class="tool-label" id="strengthLabel">Opacity</h2>
+          <div class="size-control">
+            <input type="range" id="strengthSlider" min="1" max="100" value="100" aria-labelledby="strengthLabel">
+            <output id="strengthValue" for="strengthSlider">100%</output>
+          </div>
+          <div class="strength-preview" id="strengthPreview" aria-hidden="true">
+            <div class="strength-preview-fill" id="strengthPreviewFill"></div>
+          </div>
+        </section>
+
+        <section class="tool-group">
+          <h2 class="tool-label">Canvas</h2>
+          <div class="canvas-options">
+            <label class="option">
+              <input type="checkbox" id="gridToggle">
+              Show grid
+            </label>
+          </div>
+        </section>
+      </aside>
+
+      <main class="canvas-area">
+        <div class="canvas-frame" id="canvasFrame">
+          <canvas id="canvas" aria-label="Drawing canvas"></canvas>
+        </div>
+        <p class="hint" id="saveStatus">Draw with mouse, touch, or stylus.</p>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

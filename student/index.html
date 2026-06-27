@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Management — CIIT Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <i class="bi bi-mortarboard-fill"></i>
+        <h1>EduManage</h1>
+        <p>Student Management System · CIIT College</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <div class="mb-3">
+          <label for="loginUsername" class="form-label">Username</label>
+          <input type="text" id="loginUsername" class="form-control" placeholder="Enter username" autocomplete="username" required>
+        </div>
+        <div class="mb-3">
+          <label for="loginPassword" class="form-label">Password</label>
+          <div class="password-field">
+            <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" autocomplete="current-password" required>
+            <button type="button" id="togglePassword" class="password-toggle" aria-label="Show password">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+        <div class="form-check mb-3">
+          <input type="checkbox" class="form-check-input" id="loginRemember">
+          <label class="form-check-label" for="loginRemember">Remember me on this device</label>
+        </div>
+        <p id="loginError" class="login-error" role="alert" hidden></p>
+        <button type="submit" class="btn btn-teal w-100 login-submit">
+          <i class="bi bi-box-arrow-in-right"></i> Sign In
+        </button>
+      </form>
+
+      <div class="login-demo">
+        <p class="login-demo-title">Demo accounts</p>
+        <ul>
+          <li><code>admin</code> / <code>admin123</code></li>
+          <li><code>registrar</code> / <code>registrar123</code></li>
+          <li><code>demo</code> / <code>demo123</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- App (shown after login) -->
+  <div id="appRoot" class="app-root" hidden>
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+      <i class="bi bi-mortarboard-fill"></i>
+      <div>
+        EduManage
+        <small>Student Management System</small>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button type="button" class="nav-link active" data-view="dashboard">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+      </button>
+      <button type="button" class="nav-link" data-view="students">
+        <i class="bi bi-people"></i>
+        <span>Students</span>
+      </button>
+      <button type="button" class="nav-link" data-view="courses">
+        <i class="bi bi-journal-bookmark"></i>
+        <span>Courses</span>
+      </button>
+      <button type="button" class="nav-link" data-view="grades">
+        <i class="bi bi-clipboard-data"></i>
+        <span>Grades</span>
+      </button>
+      <button type="button" class="nav-link" data-view="attendance">
+        <i class="bi bi-calendar-check"></i>
+        <span>Attendance</span>
+      </button>
+      <button type="button" class="nav-link" data-view="reports">
+        <i class="bi bi-file-earmark-bar-graph"></i>
+        <span>Reports</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button type="button" class="nav-link" data-goto="settings">
+        <i class="bi bi-gear"></i>
+        <span>Settings</span>
+      </button>
+    </div>
+  </aside>
+
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+  <!-- Main -->
+  <div class="main-wrapper">
+
+    <header class="navbar-top">
+      <div class="d-flex align-items-center gap-3">
+        <button id="sidebarToggle" class="btn btn-icon" aria-label="Toggle sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="search-box d-none d-md-flex">
+          <i class="bi bi-search"></i>
+          <input type="search" id="globalSearch" class="form-control" placeholder="Search students by name or ID...">
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+        <span id="semesterBadge" class="semester-badge d-none d-sm-inline-flex">
+          <i class="bi bi-calendar3"></i>
+          <span id="semesterText"></span>
+        </span>
+        <div class="dropdown">
+          <button class="btn user-menu" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=134e4a&color=fff" alt="User avatar" class="avatar" data-user-avatar>
+            <span class="d-none d-sm-inline" data-user-name>User</span>
+            <i class="bi bi-chevron-down"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" data-goto="settings"><i class="bi bi-person"></i> My Profile</a></li>
+            <li><a class="dropdown-item" href="#" data-goto="settings"><i class="bi bi-gear"></i> Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+          <p class="page-subtitle" id="pageSubtitle">Overview of student records and academic performance.</p>
+        </div>
+        <button class="btn btn-teal" id="headerAction">
+          <i class="bi bi-download"></i>
+          <span class="d-none d-sm-inline">Export Data</span>
+        </button>
+      </div>
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <section id="view-dashboard" class="view-section active">
+
+        <div class="row g-4 mb-4">
+          <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+              <div class="stat-icon bg-teal-subtle text-teal">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div>
+                <p class="stat-label">Total Students</p>
+                <h2 class="stat-value" id="statStudents">—</h2>
+                <span class="stat-change text-success"><i class="bi bi-arrow-up"></i> 4.1% vs last sem</span>
+              </div>
+            </article>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+              <div class="stat-icon bg-primary-subtle text-primary">
+                <i class="bi bi-journal-bookmark-fill"></i>
+              </div>
+              <div>
+                <p class="stat-label">Active Courses</p>
+                <h2 class="stat-value" id="statCourses">—</h2>
+                <span class="stat-change text-success"><i class="bi bi-arrow-up"></i> 2 new sections</span>
+              </div>
+            </article>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+              <div class="stat-icon bg-warning-subtle text-warning">
+                <i class="bi bi-award-fill"></i>
+              </div>
+              <div>
+                <p class="stat-label">Average GPA</p>
+                <h2 class="stat-value" id="statGpa">—</h2>
+                <span class="stat-change text-success"><i class="bi bi-arrow-up"></i> 0.08 improvement</span>
+              </div>
+            </article>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <article class="stat-card">
+              <div class="stat-icon bg-success-subtle text-success">
+                <i class="bi bi-calendar-check-fill"></i>
+              </div>
+              <div>
+                <p class="stat-label">Attendance Rate</p>
+                <h2 class="stat-value" id="statAttendance">—</h2>
+                <span class="stat-change text-danger"><i class="bi bi-arrow-down"></i> 1.2% this week</span>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+          <div class="col-lg-8">
+            <article class="card-panel h-100">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Enrollment Trend</h3>
+                  <p class="card-panel-subtitle">Total enrolled students across the academic year</p>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="enrollmentChart"></canvas>
+              </div>
+            </article>
+          </div>
+          <div class="col-lg-4">
+            <article class="card-panel h-100">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Grade Distribution</h3>
+                  <p class="card-panel-subtitle">Current semester breakdown</p>
+                </div>
+              </div>
+              <div class="chart-container-sm">
+                <canvas id="gradeDistChart"></canvas>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <article class="card-panel">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Top Performing Students</h3>
+                  <p class="card-panel-subtitle">Highest GPA among active enrollees</p>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th scope="col">Rank</th>
+                      <th scope="col">Student</th>
+                      <th scope="col">Program</th>
+                      <th scope="col">GPA</th>
+                    </tr>
+                  </thead>
+                  <tbody id="topStudentsBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+          <div class="col-lg-5">
+            <article class="card-panel" id="activityPanel">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Recent Activity</h3>
+                  <p class="card-panel-subtitle">Latest updates across the system</p>
+                </div>
+              </div>
+              <ul id="activityList" class="activity-list"></ul>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ STUDENTS ═══ -->
+      <section id="view-students" class="view-section">
+        <article class="card-panel">
+          <div class="card-panel-header">
+            <div>
+              <h3 class="card-panel-title">Student Directory</h3>
+              <p class="card-panel-subtitle"><span id="studentCount">0 students</span> · Filter by status or program</p>
+            </div>
+            <div class="filter-bar">
+              <input type="search" id="studentSearch" class="form-control form-control-sm table-search" placeholder="Search...">
+              <select id="studentStatusFilter" class="form-select form-select-sm">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="on-leave">On Leave</option>
+                <option value="graduated">Graduated</option>
+              </select>
+              <select id="studentMajorFilter" class="form-select form-select-sm">
+                <option value="">All Programs</option>
+                <option value="Information Technology">Information Technology</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Multimedia Arts">Multimedia Arts</option>
+                <option value="Animation">Animation</option>
+              </select>
+              <button class="btn btn-sm btn-teal">
+                <i class="bi bi-plus-lg"></i>
+                <span class="d-none d-sm-inline">Add Student</span>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Student</th>
+                  <th scope="col" class="d-none d-lg-table-cell">Email</th>
+                  <th scope="col">Program</th>
+                  <th scope="col">Year</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">GPA</th>
+                  <th scope="col" class="d-none d-md-table-cell">Enrolled</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ═══ COURSES ═══ -->
+      <section id="view-courses" class="view-section">
+        <article class="card-panel">
+          <div class="card-panel-header">
+            <div>
+              <h3 class="card-panel-title">Course Catalog</h3>
+              <p class="card-panel-subtitle">10 courses offered this semester</p>
+            </div>
+            <div class="filter-bar">
+              <input type="search" id="courseSearch" class="form-control form-control-sm table-search" placeholder="Search courses...">
+              <button class="btn btn-sm btn-teal">
+                <i class="bi bi-plus-lg"></i>
+                <span class="d-none d-sm-inline">Add Course</span>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Code</th>
+                  <th scope="col">Course Name</th>
+                  <th scope="col" class="d-none d-md-table-cell">Instructor</th>
+                  <th scope="col">Credits</th>
+                  <th scope="col">Enrolled</th>
+                  <th scope="col" class="d-none d-lg-table-cell">Schedule</th>
+                  <th scope="col" class="d-none d-xl-table-cell">Room</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="courseTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ═══ GRADES ═══ -->
+      <section id="view-grades" class="view-section">
+        <article class="card-panel">
+          <div class="card-panel-header">
+            <div>
+              <h3 class="card-panel-title">Grade Records</h3>
+              <p class="card-panel-subtitle">Midterm, final exam, and project scores</p>
+            </div>
+            <div class="filter-bar">
+              <input type="search" id="gradeSearch" class="form-control form-control-sm table-search" placeholder="Search...">
+              <select id="gradeLetterFilter" class="form-select form-select-sm">
+                <option value="">All Grades</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="F">F</option>
+              </select>
+              <button class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-upload"></i>
+                <span class="d-none d-sm-inline">Import</span>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Student</th>
+                  <th scope="col" class="d-none d-md-table-cell">Course</th>
+                  <th scope="col">Midterm</th>
+                  <th scope="col">Final</th>
+                  <th scope="col" class="d-none d-lg-table-cell">Project</th>
+                  <th scope="col">Overall</th>
+                  <th scope="col">Grade</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="gradeTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ═══ ATTENDANCE ═══ -->
+      <section id="view-attendance" class="view-section">
+        <article class="card-panel">
+          <div class="card-panel-header">
+            <div>
+              <h3 class="card-panel-title">Attendance Records</h3>
+              <p class="card-panel-subtitle">Daily logs · <span id="attendanceFilterRate">—</span></p>
+            </div>
+            <div class="filter-bar">
+              <input type="search" id="attendanceSearch" class="form-control form-control-sm table-search" placeholder="Search...">
+              <select id="attendanceStatusFilter" class="form-select form-select-sm">
+                <option value="">All Status</option>
+                <option value="present">Present</option>
+                <option value="absent">Absent</option>
+                <option value="late">Late</option>
+                <option value="excused">Excused</option>
+              </select>
+              <select id="attendanceCourseFilter" class="form-select form-select-sm">
+                <option value="">All Courses</option>
+                <option value="IT-301">IT-301</option>
+                <option value="IT-205">IT-205</option>
+                <option value="IT-410">IT-410</option>
+                <option value="CS-210">CS-210</option>
+                <option value="CS-180">CS-180</option>
+                <option value="CS-315">CS-315</option>
+                <option value="MMA-105">MMA-105</option>
+                <option value="MMA-220">MMA-220</option>
+                <option value="ANIM-120">ANIM-120</option>
+                <option value="GE-102">GE-102</option>
+              </select>
+              <button class="btn btn-sm btn-teal">
+                <i class="bi bi-plus-lg"></i>
+                <span class="d-none d-sm-inline">Mark Attendance</span>
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Student</th>
+                  <th scope="col">Course</th>
+                  <th scope="col">Status</th>
+                  <th scope="col" class="d-none d-md-table-cell">Notes</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ═══ REPORTS ═══ -->
+      <section id="view-reports" class="view-section">
+
+        <div class="row g-4 mb-4" id="reportCards"></div>
+
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <article class="card-panel">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Weekly Attendance Rate</h3>
+                  <p class="card-panel-subtitle">Average daily attendance this week</p>
+                </div>
+              </div>
+              <div class="chart-container-sm">
+                <canvas id="attendanceReportChart"></canvas>
+              </div>
+            </article>
+          </div>
+          <div class="col-lg-6">
+            <article class="card-panel">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Enrollment by Department</h3>
+                  <p class="card-panel-subtitle">Student headcount per program</p>
+                </div>
+              </div>
+              <div class="chart-container-sm">
+                <canvas id="departmentChart"></canvas>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <article class="card-panel mt-4">
+          <div class="card-panel-header">
+            <div>
+              <h3 class="card-panel-title">Quick Summary</h3>
+              <p class="card-panel-subtitle">Key metrics for administrative reporting</p>
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-sm-6 col-md-3">
+              <div class="summary-tile">
+                <p class="stat-label mb-1">Active Enrollees</p>
+                <p class="stat-value mb-0 fs-4" id="reportActiveCount">—</p>
+              </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="summary-tile">
+                <p class="stat-label mb-1">Students at Risk (GPA &lt; 3.0)</p>
+                <p class="stat-value mb-0 fs-4 text-danger" id="reportAtRisk">—</p>
+              </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="summary-tile">
+                <p class="stat-label mb-1">Unexcused Absences (Week)</p>
+                <p class="stat-value mb-0 fs-4 text-warning" id="reportUnexcused">—</p>
+              </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+              <div class="summary-tile">
+                <p class="stat-label mb-1">Expected Graduates</p>
+                <p class="stat-value mb-0 fs-4 text-success" id="reportGraduates">—</p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- ═══ SETTINGS ═══ -->
+      <section id="view-settings" class="view-section">
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <article class="card-panel">
+              <div class="card-panel-header mb-0">
+                <div>
+                  <h3 class="card-panel-title">Account</h3>
+                  <p class="card-panel-subtitle">Your signed-in profile</p>
+                </div>
+              </div>
+              <div class="settings-profile mt-3">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=134e4a&color=fff" alt="" class="settings-avatar" data-user-avatar>
+                <h4 data-user-name>User</h4>
+                <p id="settingsRole" class="text-muted mb-1">—</p>
+                <p id="settingsEmail" class="settings-meta mb-1">—</p>
+                <p id="settingsDepartment" class="settings-meta">—</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="col-lg-8">
+            <article class="card-panel mb-4">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Color Mode</h3>
+                  <p class="card-panel-subtitle">Choose a theme — saved automatically on this device</p>
+                </div>
+              </div>
+              <div id="themeGrid" class="theme-grid"></div>
+            </article>
+
+            <article class="card-panel">
+              <div class="card-panel-header">
+                <div>
+                  <h3 class="card-panel-title">Preferences</h3>
+                  <p class="card-panel-subtitle">Customize your dashboard experience</p>
+                </div>
+                <button type="button" id="resetSettingsBtn" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-arrow-counterclockwise"></i> Reset defaults
+                </button>
+              </div>
+              <div class="settings-list">
+                <label class="settings-row">
+                  <div>
+                    <strong>Compact tables</strong>
+                    <p class="settings-row-desc">Reduce row padding in data tables</p>
+                  </div>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="settingCompactTables">
+                  </div>
+                </label>
+                <label class="settings-row">
+                  <div>
+                    <strong>Email alerts</strong>
+                    <p class="settings-row-desc">Notify when grades or attendance need review</p>
+                  </div>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="settingEmailAlerts" checked>
+                  </div>
+                </label>
+                <label class="settings-row">
+                  <div>
+                    <strong>Show recent activity</strong>
+                    <p class="settings-row-desc">Display activity feed on the dashboard</p>
+                  </div>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="settingShowActivity" checked>
+                  </div>
+                </label>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="settingsToast" class="toast align-items-center border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">Settings saved.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /appRoot -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
